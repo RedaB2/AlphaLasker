@@ -1,9 +1,10 @@
 import time
+import sys
 from typing import List, Tuple, Dict, Optional
 
 # Constants
-time_limit = 5  # Move time limit in seconds
-stalemate_threshold = 20  # Moves without mills forming before a draw
+time_limit = 5  # move time limit in seconds
+stalemate_threshold = 20  # moves without mills forming before a draw
 
 class LaskerMorris:
     def __init__(self):
@@ -17,6 +18,10 @@ class LaskerMorris:
         self.no_mill_moves = 0
         
         self.move_count = 0 # not necessary can comment if you want
+
+        # waiting for the colors to be assigned by referee
+        self.my_color: Optional[str] = None
+        self.opp_color: Optional[str] = None
 
         self.adjacency_list = self.build_adjacency_list() # for each valid points
 
@@ -227,7 +232,6 @@ class LaskerMorris:
         else:
             self.no_mill_moves += 1
 
-
         self.turn = self.opponent(self.turn)
 
     def undo_move(self, move: Tuple[str, str, str], prev_turn: str):
@@ -261,7 +265,6 @@ class LaskerMorris:
 
         if not self.generate_moves(self.turn):
             return True
-
 
         if self.no_mill_moves >= stalemate_threshold:
             return True
@@ -327,7 +330,7 @@ class LaskerMorris:
             # no moves => terminal from our perspective
             return self.evaluate(base_player), None
 
-        best_move = None
+        bestial_move = None
 
         if maximizing_player:
             value = float('-inf')
@@ -339,11 +342,11 @@ class LaskerMorris:
                 self.undo_move(move, current_player)
                 if score > value:
                     value = score
-                    best_move = move
+                    bestial_move = move
                 alpha = max(alpha, value)
                 if alpha >= beta:
                     break
-            return value, best_move
+            return value, bestial_move
         else:
             value = float('inf')
             for move in moves:
@@ -354,24 +357,39 @@ class LaskerMorris:
                 self.undo_move(move, current_player)
                 if score < value:
                     value = score
-                    best_move = move
+                    bestial_move = move
                 beta = min(beta, value)
                 if alpha >= beta:
                     break
-            return value, best_move
+            return value, bestial_move
+        
 
-    def best_move(self, max_depth: int = 3) -> Optional[Tuple[str, str, str]]:
-        start_time = time.time()
+    # too slow so we can change depth to 6 isntead of 3
+    def new_bestial_move(self, max_depth: int = 6) -> Optional[Tuple[str, str, str]]:
+        """
+        Iterative deepening approach:
+          - Start from depth=1 up to max_depth
+          - Stop if time is exhausted.
+          - Keep track of the best move found so far.
+        """
+        start = time.time()
+        best = None
+        # We'll search from 1..max_depth
+        for depth in range(1, max_depth + 1):
+            # Check if time is already nearly out
+            if (time.time() - start) > time_limit - 0.05:
+                break
+            val, move = self.minimax(depth, float('-inf'), float('inf'),
+                                     True, self.turn, start)
+            # If we still have time left, update best move
+            if (time.time() - start) <= time_limit - 0.05:
+                best = move
+            else:
+                # no time left
+                break
+        return best
 
-        # minimax from other player perspective
-        val, move = self.minimax(max_depth, float('-inf'), float('inf'),
-                                 True, self.turn)
-
-        elapsed = time.time() - start_time
-        if elapsed > time_limit:
-            return None
-        return move
-
+    # local testing
     def play(self):
         while True:
             if self.is_terminal_state():
@@ -382,7 +400,7 @@ class LaskerMorris:
                     print(f"Game Over. Winner is {winner}.")
                 break
 
-            move = self.best_move()
+            move = self.new_bestial_move()
             if move is None:
                 # no moves other player wins
                 print(f"{self.turn} cannot move or times out. {self.opponent(self.turn)} wins!")
@@ -396,6 +414,89 @@ class LaskerMorris:
                 print("Forcing stop after 200 moves.")
                 break
 
+    # ref communication
+
+    def run(self):
+        """
+        1) wait for color assignment ("blue" or "orange").
+        2) if we're "blue", we move first.
+        3) otherwise, read the first move from the "blue" player, apply it, then move.
+        """
+        for line in sys.stdin:
+            line = line.strip()
+            if not line:
+                continue
+
+        
+            if self.my_color is None:
+                if line in ["blue", "orange"]:
+                    self.my_color = line
+                    self.opp_color = self.opponent(line)
+                
+                    if self.my_color == 'blue':
+                        # Our turn is also 'blue'
+                        self.turn = 'blue'
+                        self.do_our_move()
+                    else:
+                        
+                        self.turn = 'blue'
+                    continue
+                else:
+                    
+                    continue
+
+            # check for the END signal
+            if line.startswith("END:"):
+    
+                break
+
+        
+            move_parts = line.split()
+            if len(move_parts) != 3:
+                
+                print(f"INVALID MOVE {line}", flush=True)
+                break
+
+            src, dest, remove = move_parts
+
+            
+            if self.turn != self.my_color:
+                
+                valid_opponent_moves = self.generate_moves(self.turn)
+                if (src, dest, remove) not in valid_opponent_moves:
+                   
+                    print(f"INVALID MOVE {src} {dest} {remove}", flush=True)
+                    break
+                else:
+                    
+                    self.make_move((src, dest, remove))
+            else:
+                
+                valid_our_moves = self.generate_moves(self.turn)
+                if (src, dest, remove) not in valid_our_moves:
+                    print(f"INVALID MOVE {src} {dest} {remove}", flush=True)
+                    break
+                else:
+                    self.make_move((src, dest, remove))
+
+            if not self.is_terminal_state() and self.turn == self.my_color:
+                self.do_our_move()
+
+    def do_our_move(self):
+        """
+        helper to compute best move and flush
+        """
+        move = self.new_bestial_move()
+        if move is None:
+    
+            print(f"h{1 if self.my_color=='blue' else 2} X0 r0", flush=True)
+            return
+        src, dest, remove = move
+        print(f"{src} {dest} {remove}", flush=True)
+        self.make_move(move)
+
 if __name__ == "__main__":
     game = LaskerMorris()
-    game.play()
+    # uncomment for local testing no ref package
+    # game.play()
+    game.run()
