@@ -1,6 +1,6 @@
 import sys
 from typing import Tuple, Optional
-from alpha_lasker_bot import LaskerMorris  
+from AlphaLasker import LaskerMorris  
 
 class LaskerMorrisPlayer:
     def __init__(self):
