@@ -1,6 +1,6 @@
-# Player222 🎮
+# AlphaLasker 🎮
 
-This project is a Tic-tac-toe player named **Player222** that uses the minimax algorithm with alpha-beta pruning. It is designed to play optimally and communicate with the referee system. This is Part I of the project. 
+This project is a Lasker Morris player named **AlphaLasker** that uses the minimax algorithm with alpha-beta pruning. It is designed to play optimally and communicate with the referee system. This is Part I of the project. 
 
 ## 1. Instructions on Compiling and Running the Program 🔧
 
@@ -12,16 +12,16 @@ This project is a Tic-tac-toe player named **Player222** that uses the minimax a
 To run the program with the cs4341-referee, use the following command in your terminal:
 
 ```bash
-cs4341-referee tictactoe -p "python player222.py" --visual
+cs4341-referee laskermorris -p1 "python AlphaLasker.py" -p2 "python AlphaLasker.py" --visual
 ```
 
-This command will allow to start the game with the referee, turn on visualization, and run the program player222.py
+This command will allow to start the game with the referee, turn on visualization, and run the program AlphaLasker.py
 
 ### Running with offline tests
 In order to run the program and run local tests with preset boards, uncomment the following line at the end of the code: 
 
 ```bash 
-    run_offline_tests()
+    game.play()
 ```
 
 
@@ -59,7 +59,7 @@ The use of minimax with alpha-beta pruning ensures optimal play. Therefore, we g
 - Robust Move Generation:
 The program validates moves, updates its internal board state accurately, and communicates only valid moves to the referee.
 - Efficient Search:
-The search algorithm is efficient for a simple game like Tic-tac-toe and always returns a move well within the allotted time limit.
+The search algorithm is efficient for a simple game like LaskerMorris and always returns a move within the allotted time limit.
 - Clear Code Structure:
 The code is modular and well-commented, making it easy to understand, maintain, and extend.
 
