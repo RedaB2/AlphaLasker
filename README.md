@@ -24,17 +24,20 @@ In order to run the program and run local tests with preset boards, uncomment th
     game.play()
 ```
 
-
 ## 2. evalTerminalState(boardState, myMark)
 
-The AI uses evalTerminalState(boardState, myMark) function as its utility function. It operates as follows:
+The evalTerminalState(boardState, myMark) function evaluates the board state to determine if the game has reached a terminal condition. It operates as follows:
 
-- Winning Terminal States:
-    If the board shows that your player (e.g., 'X' for blue) has won, the function returns +100.
-- Losing Terminal States:
-    If the board shows that the opponent has won, the function returns -100.
--  Draw or Non-Terminal States:
-    If there is no winner (including draws), it returns 0.
+- Winning State (+100):
+    If the player using myMark has won (i.e., the opponent has fewer than three pieces or no valid moves left), the function returns +100.
+
+- Losing State (-100):
+    If the opponent has won (i.e., the player using myMark has fewer than three pieces or no valid moves left), the function returns -100.
+
+- Draw or Ongoing Game (0):
+    If neither player has won and the game is still playable, the function returns 0.
+
+This function is crucial for the AI's decision-making process, allowing it to recognize terminal states when performing minimax search with alpha-beta pruning.
 
 ## 3. Results
 
