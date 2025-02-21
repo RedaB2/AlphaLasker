@@ -2,7 +2,7 @@ import sys
 import time
 from typing import List, Tuple, Dict, Optional
 
-# Constants for game rules
+
 time_limit = 5  # move time limit in seconds
 stalemate_threshold = 20  # moves without mills forming before a draw
 

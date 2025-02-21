@@ -2,11 +2,34 @@
 
 This project is a Lasker Morris player named **AlphaLasker** that uses the minimax algorithm with alpha-beta pruning. It is designed to play optimally and communicate with the referee system. This is Part I of the project. 
 
-## 1. Instructions on Compiling and Running the Program 🔧
+
+## Team Members & Contributions
+
+Carlos Jones ==> Game logic and board management, debugging and testing, implementation of the evaluation function, minimax/alpha-beta, comments
+
+Reda Boutayeb ==> Game logic, heuristic refinement, evaluation function, testing and local play, referee communication, comments
+
+## 2. Description and architecture
+
+AlphaLasker uses: 
+
+- A state-based approach, different phases ==> placing, moving, flying. 
+- A minimax search with alpha-beta pruning, which explores possible moves up to a given depth or until a time limit is reached. 
+- A heuristic evaluation function, which estimates the desirability of any given board state based on stone counts and mills formed. 
+
+The code is organized in: 
+
+LaskerMorris class: Implements all the game mechanics, board, move, and search. 
+
+main() : Simple entry poiunt for AI or referee. 
+
+
+
+## 3. Instructions on Compiling and Running the Program 🔧
 
 ### Requirements
 - **Python Version:** Python 3.10 or higher  
-- **Dependencies:** No external packages are required beyond the standard Python libraries (sys, math).
+- **Dependencies:** No external packages are required beyond the standard Python libraries (sys, math, time, typing).
 
 ### Running with the Referee
 To run the program with the cs4341-referee, use the following command in your terminal:
@@ -24,55 +47,57 @@ In order to run the program and run local tests with preset boards, uncomment th
     game.play()
 ```
 
-## 2. evalTerminalState(boardState, myMark)
+## 4. evaluate(self, player: str) - Utility Function/Evaluation
 
-The evalTerminalState(boardState, myMark) function evaluates the board state to determine if the game has reached a terminal condition. It operates as follows:
+Within the code, the evaluate(self, player: str) method acts as the utility (heuristic) function for that player. It returns an integer score indicating how favorable the current board is to that player.
 
-- Winning State (+100):
-    If the player using myMark has won (i.e., the opponent has fewer than three pieces or no valid moves left), the function returns +100.
+The key factors are: 
 
-- Losing State (-100):
-    If the opponent has won (i.e., the player using myMark has fewer than three pieces or no valid moves left), the function returns -100.
+- Stone Count difference
 
-- Draw or Ongoing Game (0):
-    If neither player has won and the game is still playable, the function returns 0.
 
-This function is crucial for the AI's decision-making process, allowing it to recognize terminal states when performing minimax search with alpha-beta pruning.
+- Number of Mills 
 
-## 3. Results
+Thus, if a player has more stones and/or more active mills, it yields a higher score. 
 
-Testing: 
+## 5. Heuristics & Strats
 
-1. Offline Testing 
-- Test 1: Empty Board
-The program was tested on an empty board with 'X' to move first. The AI chose a valid move.
-- Test 2: Partially-Filled Board
-A board scenario was constructed where moves had already been made. The AI selected a move that appropriately blocked or created a threat.
-- Test 3: Near-Terminal Board
-A scenario was tested where 'X' could win by playing a specific move. The AI correctly identified and selected the winning move.
+- Phased Move Generation:
+The code only generates moves relevant to the current phase for the active player (placing, moving, or flying).
 
-2. Self-Play via the Referee:
-The AI was run against itself using the referee system.
-As expected for optimal play in Tic-tac-toe, every game ends in a draw.
+- Alpha-Beta Pruning:
+We prune branches in minimax if they cannot possibly influence the final decision, reducing the search space.
+
+- Iterative Deepening:
+The AI begins at depth 1 and increases the depth up to 6 or until the time limit (5 seconds) is about to be exceeded. The best move found so far is retained if the timer is close to the limit.
+
+- Stalemate Threshold:
+If there have been 20 moves in a row with no mills formed, the game is considered a draw.
+
+
+
+## 7. Results & Testing
+
+
+Local Testing
+	•	AI vs AI (self-play) without a referee in game.play() mode:
+	•	In repeated tests, the outcome was fairly consistent: orange would typically win. After a certain point, blue drops below 2 stones, causing orange to be the victor.
+	•	Because the scenario plays out identically each time (no randomness in the search), the results are reproducible.
+
+Referee Testing
+	•	When played via the cs4341-referee, the AI runs smoothly and meets time constraints (under 5 seconds).
+	•	Occasional timeouts can occur if the depth is set too high, but our iterative deepening approach mitigates this.
+
 
 ## 3. Strengths 💪
 
-- Robust Move Generation:
-The program implements move generation, mills detection, and adjacency lists effectively.
-- Efficient Search:
-The search algorithm is efficient for a game like LaskerMorris and always returns a move within the allotted time limit.
-- Clear Code Structure:
-The code is modular and well-commented, making it easy to understand, maintain, and extend.
-- Minimax Functionality:
-The minimax function incorporates alpha-beta pruning, reducing the number of nodes that need to be evaluated.
-- Heuristic Evaluation:
-The evaluate function considers multiple factors such as stone count and mills, providing a reasonable heuristic for move selection.
+- Robust Move Generation: Correct handling of the placing, moving, and flying phases; accurate mill detection.
+- Efficient Search: Alpha-beta pruning combined with iterative deepening keeps the search within time limits.
+- Modular Code: Easy to read, debug, and maintain.
+- Solid Heuristic: Stone count and mills cover the main tactical considerations in Lasker Morris.
 
 ## 4. Weaknesses ⚠️
 
-- Heuristic Complexity:
-The evaluation function is relatively simple, relying on a basic difference in stone count and mills.
-- Referee Implementation:
-In testing, the referee would occasionally time out after all moves were completed.
-- Learning Mechanism:
-There is no learning mechanism (e.g., transposition tables) to avoid re-evaluating previously seen board states.
+- Heuristic Complexity: The evaluation is relatively simple and does not consider more sophisticated positional factors.
+- No Advanced Learning: The AI does not store or reuse previously computed board states.
+- Timeout at the end of game with referee. 
