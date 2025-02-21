@@ -54,18 +54,22 @@ As expected for optimal play in Tic-tac-toe, every game ends in a draw.
 
 ## 3. Strengths 💪
 
-- Optimal Play:
-The use of minimax with alpha-beta pruning ensures optimal play. Therefore, we get a draw. 
 - Robust Move Generation:
-The program validates moves, updates its internal board state accurately, and communicates only valid moves to the referee.
+The program implements move generation, mills detection, and adjacency lists effectively.
 - Efficient Search:
-The search algorithm is efficient for a simple game like LaskerMorris and always returns a move within the allotted time limit.
+The search algorithm is efficient for a game like LaskerMorris and always returns a move within the allotted time limit.
 - Clear Code Structure:
 The code is modular and well-commented, making it easy to understand, maintain, and extend.
+- Minimax Functionality:
+The minimax function incorporates alpha-beta pruning, reducing the number of nodes that need to be evaluated.
+- Heuristic Evaluation:
+The evaluate function considers multiple factors such as stone count and mills, providing a reasonable heuristic for move selection.
 
 ## 4. Weaknesses ⚠️
 
-- Simple Evaluation Heuristic:
-The utility function is basic (+100, -100, or 0). This is enough for Tic Tac Toe, however, might not be enough for more complex.
-- Scalability:
-The full minimax search works well for Tic-tac-toe, but scaling this approach to more complex games would require further optimizations (such as move ordering or iterative deepening).
+- Heuristic Complexity:
+The evaluation function is relatively simple, relying on a basic difference in stone count and mills.
+- Referee Implementation:
+In testing, the referee would occasionally time out after all moves were completed.
+- Learning Mechanism:
+There is no learning mechanism (e.g., transposition tables) to avoid re-evaluating previously seen board states.
