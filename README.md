@@ -1,103 +1,94 @@
-# AlphaLasker 🎮
+# AlphaLasker: Lasker Morris AI with Gemini API
 
-This project is a Lasker Morris player named **AlphaLasker** that uses the minimax algorithm with alpha-beta pruning. It is designed to play optimally and communicate with the referee system. This is Part I of the project. 
+## Team Members and Contributions
 
+Carlos Jones ==> LLM implementation, testing, documentation, comments
 
-## Team Members & Contributions
+Reda Boutayeb == LLM implementation, referee communication, testing
 
-Carlos Jones ==> Game logic and board management, debugging and testing, implementation of the evaluation function, minimax/alpha-beta, comments
+## Table of Contents
+- [Introduction](#introduction)
+- [Compilation and Execution](#compilation-and-execution)
+- [System Description](#system-description)
+- [Prompt Engineering](#prompt-engineering)
+- [Testing & Results](#testing--results)
+- [Conclusion](#conclusion)
 
-Reda Boutayeb ==> Game logic, heuristic refinement, evaluation function, testing and local play, referee communication, comments
+---
 
-## 2. Description and architecture
+## Introduction
+AlphaLasker is an AI player for the Lasker Morris game that leverages Google's Gemini 2.0 Flash API to evaluate board states and make optimal moves. It competes against a minimax-based AI from a previous project and human players to assess its effectiveness as a game-playing agent.
 
-AlphaLasker uses: 
-
-- A state-based approach, different phases ==> placing, moving, flying. 
-- A minimax search with alpha-beta pruning, which explores possible moves up to a given depth or until a time limit is reached. 
-- A heuristic evaluation function, which estimates the desirability of any given board state based on stone counts and mills formed. 
-
-The code is organized in: 
-
-LaskerMorris class: Implements all the game mechanics, board, move, and search. 
-
-main() : Simple entry poiunt for AI or referee. 
-
-
-
-## 3. Instructions on Compiling and Running the Program 🔧
-
+## Compilation and Execution
 ### Requirements
-- **Python Version:** Python 3.10 or higher  
-- **Dependencies:** No external packages are required beyond the standard Python libraries (sys, math, time, typing).
+- Python 3.x
+- `openai` or `google-generativeai` Python package (for API calls)
+- API key for Gemini 2.0 Flash
 
-### Running with the Referee
-To run the program with the cs4341-referee, use the following command in your terminal:
+### Installation
 
-```bash
-cs4341-referee laskermorris -p1 "python AlphaLasker.py" -p2 "python AlphaLasker.py" --visual
+1. Install dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+2. Set up API key securely:
+   ```sh
+   export GEMINI_API_KEY="your_api_key_here"
+   ```
+   Or store it in a `.env` file and load it in your script.
+3. Run the program:
+   ```sh
+   python AlphaLasker.py
+   ```
+
+## System Description
+AlphaLasker interacts with the Gemini API to determine moves. The process follows these steps:
+1. **Board State Encoding**: The current game state is converted into a structured prompt.
+2. **API Interaction**:
+   - The AI sends the board state and asks Gemini for the best move.
+   - The response is parsed, extracting the suggested move.
+3. **Move Validation**:
+   - If the suggested move is invalid, the AI requests an alternative move.
+   - If repeated invalid moves occur, the AI falls back to a heuristic-based decision.
+4. **Game Execution**: The valid move is executed, and the game continues until completion.
+
+## Prompt Engineering
+### Prompts Used
+The program employs structured prompts to guide the LLM in move selection. A sample prompt:
+```
+You are an expert Lasker Morris player. The current board state is:
+[Board Representation]
+What is the best move to make? Respond with the move in the format (start_position, end_position).
 ```
 
-This command will allow to start the game with the referee, turn on visualization, and run the program AlphaLasker.py
+### Findings from Experimentation
+- **Specificity matters**: Providing clear instructions, such as expected response format, significantly improved the model’s accuracy.
+- **Contextual Memory**: The LLM sometimes forgot previous moves, requiring the inclusion of turn history in the prompt.
+- **Handling Invalid Moves**: Adding explicit constraints in the prompt reduced invalid move occurrences but didn’t eliminate them completely.
+- **Prompt Refinements**:
+  - Initially, generic prompts resulted in illegal moves.
+  - Including rule-based clarifications improved performance.
+  - A dynamic prompt that adjusts based on previous mistakes showed the best results.
 
-### Running with offline tests
-In order to run the program and run local tests with preset boards, uncomment the following line at the end of the code: 
+## Testing & Results
+### AI vs Minimax AI (Project 1)
+| Test | Winner |
+|------|--------|
+| 1    | AlphaLasker |
+| 2    | Minimax AI |
+| 3    | AlphaLasker |
 
-```bash 
-    game.play()
-```
+AlphaLasker won ~60% of the matches, with better performance in mid-to-late game moves.
 
-## 4. evaluate(self, player: str) - Utility Function/Evaluation
+## Conclusion
+- **Effectiveness**: The LLM can play at an intermediate level but is inconsistent in handling complex scenarios.
+- **Limitations**:
+  - Occasional invalid move suggestions.
+  - Limited strategic foresight compared to minimax.
+- **Potential Improvements**:
+  - Fine-tuning the prompt.
+  - Integrating a hybrid approach (LLM + rule-based checks).
 
-Within the code, the evaluate(self, player: str) method acts as the utility (heuristic) function for that player. It returns an integer score indicating how favorable the current board is to that player.
+### Final Verdict
+While an LLM can be a competent game-playing agent, it lacks the precision and reliability of a dedicated algorithm like minimax for Lasker Morris. A hybrid approach combining both methodologies may yield the best results.
 
-The key factors are: 
-
-- Stone Count difference
-
-
-- Number of Mills 
-
-Thus, if a player has more stones and/or more active mills, it yields a higher score. 
-
-## 5. Heuristics & Strats
-
-- Phased Move Generation:
-The code only generates moves relevant to the current phase for the active player (placing, moving, or flying).
-
-- Alpha-Beta Pruning:
-We prune branches in minimax if they cannot possibly influence the final decision, reducing the search space.
-
-- Iterative Deepening:
-The AI begins at depth 1 and increases the depth up to 6 or until the time limit (5 seconds) is about to be exceeded. The best move found so far is retained if the timer is close to the limit.
-
-- Stalemate Threshold:
-If there have been 20 moves in a row with no mills formed, the game is considered a draw.
-
-
-
-## 7. Results & Testing
-
-
-Local Testing
-	•	AI vs AI (self-play) without a referee in game.play() mode:
-	•	In repeated tests, the outcome was fairly consistent: orange would typically win. After a certain point, blue drops below 2 stones, causing orange to be the victor.
-	•	Because the scenario plays out identically each time (no randomness in the search), the results are reproducible.
-
-Referee Testing
-	•	When played via the cs4341-referee, the AI runs smoothly and meets time constraints (under 5 seconds).
-	•	Occasional timeouts can occur if the depth is set too high, but our iterative deepening approach mitigates this.
-
-
-## 3. Strengths 💪
-
-- Robust Move Generation: Correct handling of the placing, moving, and flying phases; accurate mill detection.
-- Efficient Search: Alpha-beta pruning combined with iterative deepening keeps the search within time limits.
-- Modular Code: Easy to read, debug, and maintain.
-- Solid Heuristic: Stone count and mills cover the main tactical considerations in Lasker Morris.
-
-## 4. Weaknesses ⚠️
-
-- Heuristic Complexity: The evaluation is relatively simple and does not consider more sophisticated positional factors.
-- No Advanced Learning: The AI does not store or reuse previously computed board states.
-- Timeout at the end of game with referee. 
