@@ -4,7 +4,7 @@
 
 Carlos Jones ==> LLM implementation, testing, documentation, comments
 
-Reda Boutayeb == LLM implementation, referee communication, testing
+Reda Boutayeb == LLM implementation, referee communication, testing, comments
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -71,23 +71,76 @@ What is the best move to make? Respond with the move in the format (start_positi
   - A dynamic prompt that adjusts based on previous mistakes showed the best results.
 
 ## Testing & Results
-### AI vs Minimax AI (Project 1)
-| Test | Winner |
-|------|--------|
-| 1    | AlphaLasker |
-| 2    | Minimax AI |
-| 3    | AlphaLasker |
+### AlphaLasker LLM AI (Project 2)
 
-AlphaLasker won ~60% of the matches, with better performance in mid-to-late game moves.
+- Our AI struggled to interact with the provided referee
+- It is able to work locally:
+
+Example from local game:
+
+Board visualization:
+
+        7   B-----B-----O
+            |       |       |
+        6   |   ·---·---·   |
+            |   |       |   |
+        5   |   |   O---O---O   |   |
+            |   |   |       |   |   |
+        4   B---B---O       O---·---O
+            |   |   |       |   |   |
+        3   |   |   ·---·---·   |   |
+            |   |       |   |
+        2   |   ·---B---O   |
+            |       |       |
+        1   ·-----·-----·
+            a   b   c   d   e   f   g
+
+Board visualization:
+
+        7   B-----B-----O
+            |       |       |
+        6   |   ·---·---·   |
+            |   |       |   |
+        5   |   |   O---O---O   |   |
+            |   |   |       |   |   |
+        4   B---B---O       O---·---O
+            |   |   |       |   |   |
+        3   |   |   ·---·---·   |   |
+            |   |       |   |
+        2   |   B---·---O   |
+            |       |       |
+        1   ·-----·-----·
+            a   b   c   d   e   f   g
+
+Board visualization:
+
+        7   B-----B-----O
+            |       |       |
+        6   |   ·---·---·   |
+            |   |       |   |
+        5   |   |   O---O---O   |   |
+            |   |   |       |   |   |
+        4   B---B---·       O---·---O
+            |   |   |       |   |   |
+        3   |   |   O---·---·   |   |
+            |   |       |   |
+        2   |   B---·---O   |
+            |       |       |
+        1   ·-----·-----·
+            a   b   c   d   e   f   g
+
+
 
 ## Conclusion
 - **Effectiveness**: The LLM can play at an intermediate level but is inconsistent in handling complex scenarios.
 - **Limitations**:
   - Occasional invalid move suggestions.
   - Limited strategic foresight compared to minimax.
+  - Referee implementation
 - **Potential Improvements**:
   - Fine-tuning the prompt.
   - Integrating a hybrid approach (LLM + rule-based checks).
+  - Advanced testing once being able to integrate the provided referee
 
 ### Final Verdict
 While an LLM can be a competent game-playing agent, it lacks the precision and reliability of a dedicated algorithm like minimax for Lasker Morris. A hybrid approach combining both methodologies may yield the best results.
